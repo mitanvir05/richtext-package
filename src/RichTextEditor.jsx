@@ -12,6 +12,8 @@ const RichTextEditor = () => {
   const [activeCommands, setActiveCommands] = useState([]);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [textColor, setTextColor] = useState("#000000");
+  const [bgColor, setBgColor] = useState("#ffffff");
 
   const formatText = (command, value = null) => {
     document.execCommand(command, false, value);
@@ -59,9 +61,17 @@ const RichTextEditor = () => {
   };
 
   const clearFormat = () => {
-    editorRef.current.innerHTML = DEFAULT_CONTENT; // Reset to default content
+    editorRef.current.innerHTML = DEFAULT_CONTENT;
     updateActiveCommands();
     updateUndoRedoState();
+  };
+
+  const applyTextColor = (color) => {
+    formatText("foreColor", color);
+  };
+
+  const applyBgColor = (color) => {
+    formatText("hiliteColor", color);
   };
 
   const updateUndoRedoState = () => {
@@ -188,6 +198,26 @@ const RichTextEditor = () => {
           >
             Clear Format
           </button>
+
+          <div className="flex flex-col items-center">
+            <label className="text-sm font-medium mb-1">Select Text Color</label>
+            <input
+              type="color"
+              value={textColor}
+              onChange={(e) => applyTextColor(e.target.value)}
+              className="w-7 h-7 rounded cursor-pointer"
+            />
+          </div>
+
+          <div className="flex flex-col items-center">
+            <label className="text-sm font-medium mb-1">Select Bg Color</label>
+            <input
+              type="color"
+              value={bgColor}
+              onChange={(e) => applyBgColor(e.target.value)}
+              className="w-7 h-7 rounded cursor-pointer"
+            />
+          </div>
         </div>
 
         <div
