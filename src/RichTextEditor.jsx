@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import "./index.css"; 
+import "./index.css";
 
 const RichTextEditor = () => {
   const editorRef = useRef(null);
@@ -7,39 +7,36 @@ const RichTextEditor = () => {
 
   const formatText = (command, value = null) => {
     document.execCommand(command, false, value);
-    updateActiveCommands(); 
-    editorRef.current.focus(); 
+    updateActiveCommands();
+    editorRef.current.focus();
   };
 
   const addLink = () => {
     let url = prompt("Enter the URL:");
-  
+
     if (url) {
-      // If the URL doesn't start with http:// or https://, prepend https://
       if (!/^https?:\/\//i.test(url)) {
         url = `https://${url}`;
       }
-  
+
       document.execCommand("createLink", false, url);
-  
-      // Add data-url attribute to the newly created link
+
       const selection = window.getSelection();
       if (selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         let link = range.startContainer.parentElement;
-  
-        // Ensure the correct <a> element is selected even if nested
+
         if (link.tagName !== "A" && link.closest("a")) {
           link = link.closest("a");
         }
-  
+
         if (link) {
-          link.setAttribute("data-url", url); // Store URL in data-url
+          link.setAttribute("data-url", url);
         }
       }
     }
   };
-  
+
   const removeLink = () => {
     formatText("unlink");
   };
@@ -59,18 +56,28 @@ const RichTextEditor = () => {
       "insertUnorderedList",
       "superscript",
       "subscript",
-      "createLink", // Added link detection
+      "createLink",
     ];
 
     const active = commands.filter((cmd) => document.queryCommandState(cmd));
-    const headingTag = document.queryCommandValue("formatBlock"); // Check current heading
-    if (headingTag) active.push(headingTag.toLowerCase()); // Add the heading to active commands
+
+    // Check if the selection is inside a blockquote
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const parentElement = range.startContainer.parentElement;
+      if (parentElement.closest("blockquote")) {
+        active.push("blockquote");
+      }
+    }
+
+    const headingTag = document.queryCommandValue("formatBlock");
+    if (headingTag) active.push(headingTag.toLowerCase());
 
     setActiveCommands(active);
   };
 
   useEffect(() => {
-    // Set default content when the component mounts
     editorRef.current.innerHTML = `
       <h1>Welcome to the Rich Text Editor</h1>
       <p>This is some <strong>default text</strong> to get you started.</p>
@@ -98,31 +105,18 @@ const RichTextEditor = () => {
             { command: "insertUnorderedList", label: "Unordered List" },
             { command: "superscript", label: "Superscript" },
             { command: "subscript", label: "Subscript" },
-          ].map(({ command, label }) => (
+            { command: "formatBlock", value: "blockquote", label: "Block Quote" },
+          ].map(({ command, label, value }) => (
             <button
-              key={command}
-              onClick={() => formatText(command)}
+              key={command + (value || "")}
+              onClick={() => formatText(command, value)}
               className={`flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                activeCommands.includes(command)
+                activeCommands.includes(command) || activeCommands.includes(value)
                   ? "bg-green-500 text-white"
                   : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700"
               }`}
             >
               {label}
-            </button>
-          ))}
-
-          {Array.from({ length: 6 }, (_, i) => i + 1).map((h) => (
-            <button
-              key={`h${h}`}
-              onClick={() => formatText("formatBlock", `<h${h}>`)}
-              className={`flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                activeCommands.includes(`h${h}`)
-                  ? "bg-green-500 text-white"
-                  : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700"
-              }`}
-            >
-              {`H${h}`}
             </button>
           ))}
 
@@ -146,8 +140,8 @@ const RichTextEditor = () => {
           contentEditable={true}
           className="w-full min-h-[200px] p-4 border-2 border-gray-300 rounded-lg bg-white rich-text-editor"
           placeholder="Start typing here..."
-          onClick={updateActiveCommands} // Update active commands on click
-          onKeyUp={updateActiveCommands} // Update active commands on keyup
+          onClick={updateActiveCommands}
+          onKeyUp={updateActiveCommands}
         />
       </div>
     </div>
