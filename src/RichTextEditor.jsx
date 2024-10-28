@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import "./index.css"; // Ensure styles for lists are applied here
+import "./index.css"; 
 
 const RichTextEditor = () => {
   const editorRef = useRef(null);
@@ -7,8 +7,8 @@ const RichTextEditor = () => {
 
   const formatText = (command, value = null) => {
     document.execCommand(command, false, value);
-    updateActiveCommands(); // Update active commands after formatting
-    editorRef.current.focus(); // Keep the editor focused
+    updateActiveCommands(); 
+    editorRef.current.focus(); 
   };
 
   const addLink = () => {
