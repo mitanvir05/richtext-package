@@ -90,4 +90,11 @@
     font-style: italic;
     background-color: #f9f9f9;
   }
+  .bg-gray-400 {
+    background-color: #b0b0b0;
+  }
+  
+  .cursor-not-allowed {
+    cursor: not-allowed;
+  }
   
