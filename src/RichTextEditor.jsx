@@ -4,10 +4,13 @@ import "./index.css";
 const RichTextEditor = () => {
   const editorRef = useRef(null);
   const [activeCommands, setActiveCommands] = useState([]);
+  const [canUndo, setCanUndo] = useState(false); // Track undo availability
+  const [canRedo, setCanRedo] = useState(false); // Track redo availability
 
   const formatText = (command, value = null) => {
     document.execCommand(command, false, value);
     updateActiveCommands();
+    updateUndoRedoState(); // Check undo/redo state after any change
     editorRef.current.focus();
   };
 
@@ -41,6 +44,19 @@ const RichTextEditor = () => {
     formatText("unlink");
   };
 
+  const undo = () => {
+    formatText("undo");
+  };
+
+  const redo = () => {
+    formatText("redo");
+  };
+
+  const updateUndoRedoState = () => {
+    setCanUndo(document.queryCommandEnabled("undo")); // Check if undo is available
+    setCanRedo(document.queryCommandEnabled("redo")); // Check if redo is available
+  };
+
   const updateActiveCommands = () => {
     const commands = [
       "bold",
@@ -61,7 +77,6 @@ const RichTextEditor = () => {
 
     const active = commands.filter((cmd) => document.queryCommandState(cmd));
 
-    // Check if the selection is inside a blockquote
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
@@ -75,6 +90,7 @@ const RichTextEditor = () => {
     if (headingTag) active.push(headingTag.toLowerCase());
 
     setActiveCommands(active);
+    updateUndoRedoState(); // Also update undo/redo state on every update
   };
 
   useEffect(() => {
@@ -83,6 +99,7 @@ const RichTextEditor = () => {
       <p>This is some <strong>default text</strong> to get you started.</p>
       <p>You can use the buttons above to <em>format</em> this content.</p>
     `;
+    updateUndoRedoState(); // Initialize undo/redo state on mount
   }, []);
 
   return (
@@ -132,6 +149,30 @@ const RichTextEditor = () => {
             className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
           >
             Remove Link
+          </button>
+
+          <button
+            onClick={undo}
+            disabled={!canUndo} // Disable button if undo is not available
+            className={`flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 ${
+              canUndo
+                ? "bg-yellow-500 text-white hover:bg-yellow-600 active:bg-yellow-700 focus:ring-2 focus:ring-yellow-400"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }`}
+          >
+            Undo
+          </button>
+
+          <button
+            onClick={redo}
+            disabled={!canRedo} // Disable button if redo is not available
+            className={`flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 ${
+              canRedo
+                ? "bg-green-500 text-white hover:bg-green-600 active:bg-green-700 focus:ring-2 focus:ring-green-400"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }`}
+          >
+            Redo
           </button>
         </div>
 
