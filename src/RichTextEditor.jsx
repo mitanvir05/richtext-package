@@ -1,16 +1,22 @@
 import React, { useRef, useState, useEffect } from "react";
 import "./index.css";
 
+const DEFAULT_CONTENT = `
+  <h1>Welcome to the Rich Text Editor</h1>
+  <p>This is some <strong>default text</strong> to get you started.</p>
+  <p>You can use the buttons above to <em>format</em> this content.</p>
+`;
+
 const RichTextEditor = () => {
   const editorRef = useRef(null);
   const [activeCommands, setActiveCommands] = useState([]);
-  const [canUndo, setCanUndo] = useState(false); // Track undo availability
-  const [canRedo, setCanRedo] = useState(false); // Track redo availability
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
   const formatText = (command, value = null) => {
     document.execCommand(command, false, value);
     updateActiveCommands();
-    updateUndoRedoState(); // Check undo/redo state after any change
+    updateUndoRedoState();
     editorRef.current.focus();
   };
 
@@ -52,9 +58,15 @@ const RichTextEditor = () => {
     formatText("redo");
   };
 
+  const clearAll = () => {
+    editorRef.current.innerHTML = DEFAULT_CONTENT; // Reset to default content
+    updateActiveCommands();
+    updateUndoRedoState();
+  };
+
   const updateUndoRedoState = () => {
-    setCanUndo(document.queryCommandEnabled("undo")); // Check if undo is available
-    setCanRedo(document.queryCommandEnabled("redo")); // Check if redo is available
+    setCanUndo(document.queryCommandEnabled("undo"));
+    setCanRedo(document.queryCommandEnabled("redo"));
   };
 
   const updateActiveCommands = () => {
@@ -90,16 +102,11 @@ const RichTextEditor = () => {
     if (headingTag) active.push(headingTag.toLowerCase());
 
     setActiveCommands(active);
-    updateUndoRedoState(); // Also update undo/redo state on every update
   };
 
   useEffect(() => {
-    editorRef.current.innerHTML = `
-      <h1>Welcome to the Rich Text Editor</h1>
-      <p>This is some <strong>default text</strong> to get you started.</p>
-      <p>You can use the buttons above to <em>format</em> this content.</p>
-    `;
-    updateUndoRedoState(); // Initialize undo/redo state on mount
+    editorRef.current.innerHTML = DEFAULT_CONTENT;
+    updateUndoRedoState();
   }, []);
 
   return (
@@ -153,7 +160,7 @@ const RichTextEditor = () => {
 
           <button
             onClick={undo}
-            disabled={!canUndo} // Disable button if undo is not available
+            disabled={!canUndo}
             className={`flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 ${
               canUndo
                 ? "bg-yellow-500 text-white hover:bg-yellow-600 active:bg-yellow-700 focus:ring-2 focus:ring-yellow-400"
@@ -165,7 +172,7 @@ const RichTextEditor = () => {
 
           <button
             onClick={redo}
-            disabled={!canRedo} // Disable button if redo is not available
+            disabled={!canRedo}
             className={`flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 ${
               canRedo
                 ? "bg-green-500 text-white hover:bg-green-600 active:bg-green-700 focus:ring-2 focus:ring-green-400"
@@ -173,6 +180,13 @@ const RichTextEditor = () => {
             }`}
           >
             Redo
+          </button>
+
+          <button
+            onClick={clearAll}
+            className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+          >
+            Clear All
           </button>
         </div>
 
