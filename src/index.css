@@ -88,11 +88,11 @@
     padding: 0.5em 1em;
     color: #555;
     font-style: italic;
-    background-color: #f9f9f9; /* Keep this only for blockquote */
+    background-color: #f9f9f9; 
   }
   
   .rich-text-editor [style*="margin-left"] {
-    background-color: transparent; /* Prevent unwanted background on indent */
+    background-color: transparent; 
   }
   
   .bg-gray-400 {

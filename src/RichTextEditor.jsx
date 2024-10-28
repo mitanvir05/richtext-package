@@ -12,6 +12,8 @@ const RichTextEditor = () => {
   const [activeCommands, setActiveCommands] = useState([]);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
+  const [textColor, setTextColor] = useState("#000000");
+  const [bgColor, setBgColor] = useState("#ffffff");
 
   const formatText = (command, value = null) => {
     document.execCommand(command, false, value);
@@ -64,6 +66,14 @@ const RichTextEditor = () => {
     updateUndoRedoState();
   };
 
+  const applyTextColor = (color) => {
+    formatText("foreColor", color);
+  };
+
+  const applyBgColor = (color) => {
+    formatText("hiliteColor", color);
+  };
+
   const updateUndoRedoState = () => {
     setCanUndo(document.queryCommandEnabled("undo"));
     setCanRedo(document.queryCommandEnabled("redo"));
@@ -78,6 +88,8 @@ const RichTextEditor = () => {
       "justifyLeft",
       "justifyCenter",
       "justifyRight",
+      "indent",
+      "outdent",
       "insertOrderedList",
       "insertUnorderedList",
       "superscript",
@@ -91,8 +103,7 @@ const RichTextEditor = () => {
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       const parentElement = range.startContainer.parentElement;
-
-      if (parentElement.tagName === "BLOCKQUOTE") {
+      if (parentElement.closest("blockquote")) {
         active.push("blockquote");
       }
     }
@@ -108,6 +119,12 @@ const RichTextEditor = () => {
     updateUndoRedoState();
   }, []);
 
+  const headingButtons = Array.from({ length: 6 }, (_, i) => ({
+    command: "formatBlock",
+    label: `H${i + 1}`,
+    value: `h${i + 1}`,
+  }));
+
   return (
     <div className="pt-8 sm:pt-12 md:pt-16 lg:pt-20 bg-gray-100 min-h-screen">
       <div className="p-4 border rounded-lg shadow-lg bg-gray-50 max-w-4xl mx-auto">
@@ -122,11 +139,14 @@ const RichTextEditor = () => {
             { command: "justifyLeft", label: "Align Left" },
             { command: "justifyCenter", label: "Align Center" },
             { command: "justifyRight", label: "Align Right" },
+            { command: "indent", label: "Indent" },
+            { command: "outdent", label: "Outdent" },
             { command: "insertOrderedList", label: "Ordered List" },
             { command: "insertUnorderedList", label: "Unordered List" },
             { command: "superscript", label: "Superscript" },
             { command: "subscript", label: "Subscript" },
             { command: "formatBlock", value: "blockquote", label: "Block Quote" },
+            ...headingButtons,
           ].map(({ command, label, value }) => (
             <button
               key={command + (value || "")}
@@ -186,19 +206,25 @@ const RichTextEditor = () => {
             Clear Format
           </button>
 
-          {Array.from({ length: 6 }, (_, i) => i + 1).map((h) => (
-            <button
-              key={`h${h}`}
-              onClick={() => formatText("formatBlock", `<h${h}>`)}
-              className={`flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 ${
-                activeCommands.includes(`h${h}`)
-                  ? "bg-green-500 text-white"
-                  : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700"
-              }`}
-            >
-              {`H${h}`}
-            </button>
-          ))}
+          <div className="flex flex-col items-center">
+            <label className="text-sm font-medium mb-1">Select Text Color</label>
+            <input
+              type="color"
+              value={textColor}
+              onChange={(e) => applyTextColor(e.target.value)}
+              className="w-7 h-7 rounded cursor-pointer"
+            />
+          </div>
+
+          <div className="flex flex-col items-center">
+            <label className="text-sm font-medium mb-1">Select Bg Color</label>
+            <input
+              type="color"
+              value={bgColor}
+              onChange={(e) => applyBgColor(e.target.value)}
+              className="w-7 h-7 rounded cursor-pointer"
+            />
+          </div>
         </div>
 
         <div
