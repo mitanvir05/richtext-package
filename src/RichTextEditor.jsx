@@ -12,8 +12,6 @@ const RichTextEditor = () => {
   const [activeCommands, setActiveCommands] = useState([]);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
-  const [textColor, setTextColor] = useState("#000000");
-  const [bgColor, setBgColor] = useState("#ffffff");
 
   const formatText = (command, value = null) => {
     document.execCommand(command, false, value);
@@ -66,14 +64,6 @@ const RichTextEditor = () => {
     updateUndoRedoState();
   };
 
-  const applyTextColor = (color) => {
-    formatText("foreColor", color);
-  };
-
-  const applyBgColor = (color) => {
-    formatText("hiliteColor", color);
-  };
-
   const updateUndoRedoState = () => {
     setCanUndo(document.queryCommandEnabled("undo"));
     setCanRedo(document.queryCommandEnabled("redo"));
@@ -103,7 +93,8 @@ const RichTextEditor = () => {
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       const parentElement = range.startContainer.parentElement;
-      if (parentElement.closest("blockquote")) {
+
+      if (parentElement.tagName === "BLOCKQUOTE") {
         active.push("blockquote");
       }
     }
@@ -199,25 +190,19 @@ const RichTextEditor = () => {
             Clear Format
           </button>
 
-          <div className="flex flex-col items-center">
-            <label className="text-sm font-medium mb-1">Select Text Color</label>
-            <input
-              type="color"
-              value={textColor}
-              onChange={(e) => applyTextColor(e.target.value)}
-              className="w-7 h-7 rounded cursor-pointer"
-            />
-          </div>
-
-          <div className="flex flex-col items-center">
-            <label className="text-sm font-medium mb-1">Select Bg Color</label>
-            <input
-              type="color"
-              value={bgColor}
-              onChange={(e) => applyBgColor(e.target.value)}
-              className="w-7 h-7 rounded cursor-pointer"
-            />
-          </div>
+          {Array.from({ length: 6 }, (_, i) => i + 1).map((h) => (
+            <button
+              key={`h${h}`}
+              onClick={() => formatText("formatBlock", `<h${h}>`)}
+              className={`flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 ${
+                activeCommands.includes(`h${h}`)
+                  ? "bg-green-500 text-white"
+                  : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700"
+              }`}
+            >
+              {`H${h}`}
+            </button>
+          ))}
         </div>
 
         <div
