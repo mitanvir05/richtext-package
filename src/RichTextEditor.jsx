@@ -40,8 +40,6 @@ const RichTextEditor = () => {
     }
   };
   
-  
-
   const removeLink = () => {
     formatText("unlink");
   };
