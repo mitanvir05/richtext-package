@@ -11,6 +11,41 @@ const RichTextEditor = () => {
     editorRef.current.focus(); // Keep the editor focused
   };
 
+  const addLink = () => {
+    let url = prompt("Enter the URL:");
+  
+    if (url) {
+      // If the URL doesn't start with http:// or https://, prepend https://
+      if (!/^https?:\/\//i.test(url)) {
+        url = `https://${url}`;
+      }
+  
+      document.execCommand("createLink", false, url);
+  
+      // Add data-url attribute to the newly created link
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        let link = range.startContainer.parentElement;
+  
+        // Ensure the correct <a> element is selected even if nested
+        if (link.tagName !== "A" && link.closest("a")) {
+          link = link.closest("a");
+        }
+  
+        if (link) {
+          link.setAttribute("data-url", url); // Store URL in data-url
+        }
+      }
+    }
+  };
+  
+  
+
+  const removeLink = () => {
+    formatText("unlink");
+  };
+
   const updateActiveCommands = () => {
     const commands = [
       "bold",
@@ -24,6 +59,9 @@ const RichTextEditor = () => {
       "outdent",
       "insertOrderedList",
       "insertUnorderedList",
+      "superscript",
+      "subscript",
+      "createLink", // Added link detection
     ];
 
     const active = commands.filter((cmd) => document.queryCommandState(cmd));
@@ -60,6 +98,8 @@ const RichTextEditor = () => {
             { command: "outdent", label: "Outdent" },
             { command: "insertOrderedList", label: "Ordered List" },
             { command: "insertUnorderedList", label: "Unordered List" },
+            { command: "superscript", label: "Superscript" },
+            { command: "subscript", label: "Subscript" },
           ].map(({ command, label }) => (
             <button
               key={command}
@@ -87,6 +127,20 @@ const RichTextEditor = () => {
               {`H${h}`}
             </button>
           ))}
+
+          <button
+            onClick={addLink}
+            className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            Add Link
+          </button>
+
+          <button
+            onClick={removeLink}
+            className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+          >
+            Remove Link
+          </button>
         </div>
 
         <div
