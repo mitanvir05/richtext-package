@@ -22,25 +22,44 @@ const RichTextEditor = () => {
     editorRef.current.focus();
   };
 
+  const customIndent = () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const parentElement = range.startContainer.parentElement;
+      const currentMargin = parseInt(parentElement.style.marginLeft || 0);
+      parentElement.style.marginLeft = `${currentMargin + 20}px`;
+      updateActiveCommands();
+      editorRef.current.focus();
+    }
+  };
+
+  const customOutdent = () => {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const parentElement = range.startContainer.parentElement;
+      const currentMargin = parseInt(parentElement.style.marginLeft || 0);
+      parentElement.style.marginLeft = `${Math.max(currentMargin - 20, 0)}px`;
+      updateActiveCommands();
+      editorRef.current.focus();
+    }
+  };
+
   const addLink = () => {
     let url = prompt("Enter the URL:");
-
     if (url) {
       if (!/^https?:\/\//i.test(url)) {
         url = `https://${url}`;
       }
-
       document.execCommand("createLink", false, url);
-
       const selection = window.getSelection();
       if (selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         let link = range.startContainer.parentElement;
-
         if (link.tagName !== "A" && link.closest("a")) {
           link = link.closest("a");
         }
-
         if (link) {
           link.setAttribute("data-url", url);
         }
@@ -48,31 +67,16 @@ const RichTextEditor = () => {
     }
   };
 
-  const removeLink = () => {
-    formatText("unlink");
-  };
-
-  const undo = () => {
-    formatText("undo");
-  };
-
-  const redo = () => {
-    formatText("redo");
-  };
-
+  const removeLink = () => formatText("unlink");
+  const undo = () => formatText("undo");
+  const redo = () => formatText("redo");
   const clearFormat = () => {
     editorRef.current.innerHTML = DEFAULT_CONTENT;
     updateActiveCommands();
     updateUndoRedoState();
   };
-
-  const applyTextColor = (color) => {
-    formatText("foreColor", color);
-  };
-
-  const applyBgColor = (color) => {
-    formatText("hiliteColor", color);
-  };
+  const applyTextColor = (color) => formatText("foreColor", color);
+  const applyBgColor = (color) => formatText("hiliteColor", color);
 
   const updateUndoRedoState = () => {
     setCanUndo(document.queryCommandEnabled("undo"));
@@ -88,17 +92,13 @@ const RichTextEditor = () => {
       "justifyLeft",
       "justifyCenter",
       "justifyRight",
-      "indent",
-      "outdent",
       "insertOrderedList",
       "insertUnorderedList",
       "superscript",
       "subscript",
       "createLink",
     ];
-
     const active = commands.filter((cmd) => document.queryCommandState(cmd));
-
     const selection = window.getSelection();
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
@@ -107,10 +107,8 @@ const RichTextEditor = () => {
         active.push("blockquote");
       }
     }
-
     const headingTag = document.queryCommandValue("formatBlock");
     if (headingTag) active.push(headingTag.toLowerCase());
-
     setActiveCommands(active);
   };
 
@@ -128,8 +126,9 @@ const RichTextEditor = () => {
   return (
     <div className="pt-8 sm:pt-12 md:pt-16 lg:pt-20 bg-gray-100 min-h-screen">
       <div className="p-4 border rounded-lg shadow-lg bg-gray-50 max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold mb-4 text-center">Rich Text Editor</h2>
-
+        <h2 className="text-2xl font-bold mb-4 text-center">
+          Rich Text Editor
+        </h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 mb-4">
           {[
             { command: "bold", label: "Bold" },
@@ -139,20 +138,25 @@ const RichTextEditor = () => {
             { command: "justifyLeft", label: "Align Left" },
             { command: "justifyCenter", label: "Align Center" },
             { command: "justifyRight", label: "Align Right" },
-            { command: "indent", label: "Indent" },
-            { command: "outdent", label: "Outdent" },
+            { label: "Indent", handler: customIndent },
+            { label: "Outdent", handler: customOutdent },
             { command: "insertOrderedList", label: "Ordered List" },
             { command: "insertUnorderedList", label: "Unordered List" },
             { command: "superscript", label: "Superscript" },
             { command: "subscript", label: "Subscript" },
-            { command: "formatBlock", value: "blockquote", label: "Block Quote" },
+            {
+              command: "formatBlock",
+              value: "blockquote",
+              label: "Block Quote",
+            },
             ...headingButtons,
-          ].map(({ command, label, value }) => (
+          ].map(({ command, label, value, handler }) => (
             <button
-              key={command + (value || "")}
-              onClick={() => formatText(command, value)}
+              key={command || label}
+              onClick={() => (handler ? handler() : formatText(command, value))}
               className={`flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                activeCommands.includes(command) || activeCommands.includes(value)
+                activeCommands.includes(command) ||
+                activeCommands.includes(value)
                   ? "bg-green-500 text-white"
                   : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700"
               }`}
@@ -160,21 +164,18 @@ const RichTextEditor = () => {
               {label}
             </button>
           ))}
-
           <button
             onClick={addLink}
             className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             Add Link
           </button>
-
           <button
             onClick={removeLink}
             className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
           >
             Remove Link
           </button>
-
           <button
             onClick={undo}
             disabled={!canUndo}
@@ -186,7 +187,6 @@ const RichTextEditor = () => {
           >
             Undo
           </button>
-
           <button
             onClick={redo}
             disabled={!canRedo}
@@ -198,16 +198,16 @@ const RichTextEditor = () => {
           >
             Redo
           </button>
-
           <button
             onClick={clearFormat}
             className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
           >
             Clear Format
           </button>
-
           <div className="flex flex-col items-center">
-            <label className="text-sm font-medium mb-1">Select Text Color</label>
+            <label className="text-sm font-medium mb-1">
+              Select Text Color
+            </label>
             <input
               type="color"
               value={textColor}
@@ -215,7 +215,6 @@ const RichTextEditor = () => {
               className="w-7 h-7 rounded cursor-pointer"
             />
           </div>
-
           <div className="flex flex-col items-center">
             <label className="text-sm font-medium mb-1">Select Bg Color</label>
             <input
