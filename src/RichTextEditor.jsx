@@ -58,7 +58,7 @@ const RichTextEditor = () => {
     formatText("redo");
   };
 
-  const clearAll = () => {
+  const clearFormat = () => {
     editorRef.current.innerHTML = DEFAULT_CONTENT; // Reset to default content
     updateActiveCommands();
     updateUndoRedoState();
@@ -183,10 +183,10 @@ const RichTextEditor = () => {
           </button>
 
           <button
-            onClick={clearAll}
+            onClick={clearFormat}
             className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
           >
-            Clear All
+            Clear Format
           </button>
         </div>
 
