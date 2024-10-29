@@ -102,4 +102,18 @@
   .cursor-not-allowed {
     cursor: not-allowed;
   }
+  .rich-text-editor img {
+    display: block;
+    max-width: 100%;
+  }
+  
+  img[style*="float: right"] {
+    margin-left: auto;
+    margin-right: 0;
+  }
+  
+  img[style*="float: left"] {
+    margin-right: auto;
+    margin-left: 0;
+  }
   

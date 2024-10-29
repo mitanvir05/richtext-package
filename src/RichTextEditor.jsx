@@ -16,11 +16,29 @@ const RichTextEditor = () => {
   const [bgColor, setBgColor] = useState("#ffffff");
 
   const formatText = (command, value = null) => {
-    document.execCommand(command, false, value);
+    const selection = window.getSelection();
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    const parentElement = range ? range.startContainer.parentElement : null;
+  
+    // Check if the parent element or its child is an image
+    const img = parentElement && parentElement.querySelector("img");
+  
+    if (img && (command === "justifyLeft" || command === "justifyCenter" || command === "justifyRight")) {
+      img.style.display = "block";
+      img.style.margin = command === "justifyCenter" ? "0 auto" : "";
+      img.style.float = command === "justifyRight" ? "right" : command === "justifyLeft" ? "left" : "none";
+      return;
+    }
+     else {
+      // Fallback to regular text formatting
+      document.execCommand(command, false, value);
+    }
+  
     updateActiveCommands();
     updateUndoRedoState();
     editorRef.current.focus();
   };
+  
 
   const customIndent = () => {
     const selection = window.getSelection();
