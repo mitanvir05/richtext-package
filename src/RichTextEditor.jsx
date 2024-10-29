@@ -220,27 +220,27 @@ const RichTextEditor = () => {
           <div className="flex flex-col items-center">
             <label className="text-sm font-medium mb-1">
               Select Text Color
-            </label>{" "}
+            </label>
             <input
               type="color"
               value={textColor}
               onChange={(e) => applyTextColor(e.target.value)}
               className="w-7 h-7 rounded cursor-pointer"
-            />{" "}
-          </div>{" "}
+            />
+          </div>
           <div className="flex flex-col items-center">
-            {" "}
+            
             <label className="text-sm font-medium mb-1">
               Select Bg Color
-            </label>{" "}
+            </label>
             <input
               type="color"
               value={bgColor}
               onChange={(e) => applyBgColor(e.target.value)}
               className="w-7 h-7 rounded cursor-pointer"
-            />{" "}
-          </div>{" "}
-        </div>{" "}
+            />
+          </div>
+        </div>
         <div
           ref={editorRef}
           contentEditable={true}
