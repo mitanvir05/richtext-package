@@ -67,6 +67,13 @@ const RichTextEditor = () => {
     }
   };
 
+  const insertImageFromUrl = () => {
+    const url = prompt("Enter the image URL:");
+    if (url) {
+      document.execCommand("insertImage", false, url);
+    }
+  };
+
   const removeLink = () => formatText("unlink");
   const undo = () => formatText("undo");
   const redo = () => formatText("redo");
@@ -171,6 +178,12 @@ const RichTextEditor = () => {
             Add Link
           </button>
           <button
+            onClick={insertImageFromUrl}
+            className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-purple-500 text-white hover:bg-purple-600 active:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          >
+            Insert Image URL
+          </button>
+          <button
             onClick={removeLink}
             className="flex justify-center items-center px-4 py-2 rounded-lg w-full h-12 bg-red-500 text-white hover:bg-red-600 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
           >
@@ -207,25 +220,27 @@ const RichTextEditor = () => {
           <div className="flex flex-col items-center">
             <label className="text-sm font-medium mb-1">
               Select Text Color
-            </label>
+            </label>{" "}
             <input
               type="color"
               value={textColor}
               onChange={(e) => applyTextColor(e.target.value)}
               className="w-7 h-7 rounded cursor-pointer"
-            />
-          </div>
+            />{" "}
+          </div>{" "}
           <div className="flex flex-col items-center">
-            <label className="text-sm font-medium mb-1">Select Bg Color</label>
+            {" "}
+            <label className="text-sm font-medium mb-1">
+              Select Bg Color
+            </label>{" "}
             <input
               type="color"
               value={bgColor}
               onChange={(e) => applyBgColor(e.target.value)}
               className="w-7 h-7 rounded cursor-pointer"
-            />
-          </div>
-        </div>
-
+            />{" "}
+          </div>{" "}
+        </div>{" "}
         <div
           ref={editorRef}
           contentEditable={true}
