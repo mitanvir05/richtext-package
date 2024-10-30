@@ -59,10 +59,10 @@
   }
   
   .rich-text-editor a::after {
-    content: attr(data-url); /* Display the URL stored in data-url */
+    content: attr(data-url); 
     position: absolute;
     left: 0;
-    bottom: 100%; /* Position the tooltip above the link */
+    bottom: 100%; 
     background-color: black;
     color: white;
     padding: 4px 8px;
@@ -79,8 +79,8 @@
     transform: translateY(0);
   }
   .rich-text-editor a::after {
-  left: 50%;  /* Center horizontally */
-  transform: translateX(-50%) translateY(-5px);  /* Adjust position */
+  left: 50%;  
+  transform: translateX(-50%) translateY(-5px); 
 }
 .rich-text-editor blockquote {
     border-left: 4px solid #ccc;
