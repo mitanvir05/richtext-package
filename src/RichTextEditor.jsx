@@ -19,26 +19,34 @@ const RichTextEditor = () => {
     const selection = window.getSelection();
     const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
     const parentElement = range ? range.startContainer.parentElement : null;
-  
+
     // Check if the parent element or its child is an image
     const img = parentElement && parentElement.querySelector("img");
-  
-    if (img && (command === "justifyLeft" || command === "justifyCenter" || command === "justifyRight")) {
+
+    if (
+      img &&
+      (command === "justifyLeft" ||
+        command === "justifyCenter" ||
+        command === "justifyRight")
+    ) {
       img.style.display = "block";
       img.style.margin = command === "justifyCenter" ? "0 auto" : "";
-      img.style.float = command === "justifyRight" ? "right" : command === "justifyLeft" ? "left" : "none";
+      img.style.float =
+        command === "justifyRight"
+          ? "right"
+          : command === "justifyLeft"
+          ? "left"
+          : "none";
       return;
-    }
-     else {
+    } else {
       // Fallback to regular text formatting
       document.execCommand(command, false, value);
     }
-  
+
     updateActiveCommands();
     updateUndoRedoState();
     editorRef.current.focus();
   };
-  
 
   const customIndent = () => {
     const selection = window.getSelection();
@@ -247,10 +255,7 @@ const RichTextEditor = () => {
             />
           </div>
           <div className="flex flex-col items-center">
-            
-            <label className="text-sm font-medium mb-1">
-              Select Bg Color
-            </label>
+            <label className="text-sm font-medium mb-1">Select Bg Color</label>
             <input
               type="color"
               value={bgColor}
